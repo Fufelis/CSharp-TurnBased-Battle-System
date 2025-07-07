@@ -1,10 +1,14 @@
-﻿namespace RPG_Turn_Based_Battle_System
+﻿using RPG_Turn_Based_Battle_System.Core;
+
+namespace RPG_Turn_Based_Battle_System
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Game game = new Game();
+            game.Run();
+            
         }
     }
 }

@@ -9,9 +9,16 @@ namespace RPG_Turn_Based_Battle_System.Core
     internal class Enemy : Character , ICombatant
     {
 
-        public Enemy(string name, int health, int maxHealth, int attackPower, int spellPower, int defense) : base(name, health, maxHealth, attackPower, spellPower, defense)
+        public Enemy(string name, int health, int maxHealth, int attackPower, int spellPower, int defense,int speed,bool isPlayer) : base(name, health, maxHealth, attackPower, spellPower, defense,speed,isPlayer)
         {
 
         }
+
+
+        public override void Spell(ICombatant target)
+        {
+            Console.WriteLine("NO IMPLEMENTATION");
+        }
+
     }
 }

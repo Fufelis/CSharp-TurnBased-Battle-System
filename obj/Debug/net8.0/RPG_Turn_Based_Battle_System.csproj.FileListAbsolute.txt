@@ -12,3 +12,4 @@ C:\Users\raimo\Documents\Coding\cSharp\RPG_Turn_Based_Battle_System\RPG_Turn_Bas
 C:\Users\raimo\Documents\Coding\cSharp\RPG_Turn_Based_Battle_System\RPG_Turn_Based_Battle_System\obj\Debug\net8.0\RPG_Turn_Based_Battle_System.pdb
 C:\Users\raimo\Documents\Coding\cSharp\RPG_Turn_Based_Battle_System\RPG_Turn_Based_Battle_System\obj\Debug\net8.0\RPG_Turn_Based_Battle_System.genruntimeconfig.cache
 C:\Users\raimo\Documents\Coding\cSharp\RPG_Turn_Based_Battle_System\RPG_Turn_Based_Battle_System\obj\Debug\net8.0\ref\RPG_Turn_Based_Battle_System.dll
+C:\Users\raimo\Documents\Coding\cSharp\RPG_Turn_Based_Battle_System\RPG_Turn_Based_Battle_System\obj\Debug\net8.0\RPG_Turn_Based_Battle_System.sourcelink.json

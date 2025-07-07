@@ -14,8 +14,9 @@ namespace RPG_Turn_Based_Battle_System.Core
         int AttackPower { get; }
         int SpellPower {  get; }
         int Defense { get; }
-        bool IsDefeated { get; }
+        bool IsAlive { get; }
         int MaxHealth { get; }
+        int Speed { get; }
 
         void Attack(ICombatant target);
         void Spell(ICombatant target);
