@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RPG_Turn_Based_Battle_System.Core
 {
-    internal abstract class Character : ICombatant
+    public abstract class Character : ICombatant
     {
         private int health;
         public string Name { get; set; }
