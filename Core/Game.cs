@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RPG_Turn_Based_Battle_System.Spells;
 
 namespace RPG_Turn_Based_Battle_System.Core
 {
@@ -84,8 +85,13 @@ namespace RPG_Turn_Based_Battle_System.Core
 
         public void HandleBattle()
         {
-            Player player = new Player("Fufelis", 100, 100, 20, 20, 10, 10, true);
-            Enemy enemy1 = new Enemy("Gobiln", 35, 35, 10, 10, 5, 7, false);
+            Player player = new Player("Fufelis",100,25,10,100,15,20,true);
+            Enemy enemy1 = new Enemy("Gobiln",50,5,10,50,10,15,false);
+            Fireball fireball = new Fireball();
+            Heal heal = new Heal();
+            player.LearnAbility(fireball);
+            player.LearnAbility(heal);
+            enemy1.LearnAbility(fireball);
            // Enemy enemy2 = new Enemy("Big Gobiln", 55, 55, 10, 10, 5, 9, false);
             List<Character> players = new List<Character>();
             players.Add(player);
@@ -94,19 +100,17 @@ namespace RPG_Turn_Based_Battle_System.Core
             //enemies.Add(enemy2);
 
             BattleSystem battle = new BattleSystem(players, enemies);
-            bool battleInProgress = battle.StartBattleLoop();
+            bool battleResult = battle.StartBattleLoop();
 
-            if (battleInProgress)
+            if (battleResult)
             {
-                if (battle.IsVictory)
-                {
-                    currentGameState=GameState.VictoryScreen;
-                }
-                else
-                {
-                    currentGameState = GameState.GameOver;
-                }
+                currentGameState = GameState.VictoryScreen;
             }
+            else
+            {
+                currentGameState = GameState.GameOver;
+            }
+            
 
 
 
@@ -114,14 +118,16 @@ namespace RPG_Turn_Based_Battle_System.Core
 
         public void HandleVictoryScreen()
         {
-            Console.WriteLine("NOT IMPLEMENTED");
+            Console.WriteLine("=== VICTORY ===");
+            Console.ReadKey(true);
             currentGameState = GameState.MainMenu;
         }
 
         public void HandleGameOver()
         {
-            Console.WriteLine("NOT IMPLEMENTED");
-            currentGameState=GameState.MainMenu;
+            Console.WriteLine("=== DEFEAT ===");
+            Console.ReadKey(true);
+            currentGameState = GameState.MainMenu;
         }
     }
 }

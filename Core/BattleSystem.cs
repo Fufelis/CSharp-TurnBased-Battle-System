@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RPG_Turn_Based_Battle_System.Core
 {
-    public class BattleSystem
+    internal class BattleSystem
     {
         private List<Character> allCombatants;
         private Queue<Character> turnOrderQueue;
@@ -17,8 +17,8 @@ namespace RPG_Turn_Based_Battle_System.Core
         private bool battleIsOver = false;
         private bool isVictory = false;
 
-        public bool IsVictory { get; }
-        public bool BattleIsOver { get; }
+        public bool IsVictory { get; private set; }
+        public bool BattleIsOver { get; private set; }
 
         public BattleSystem(List<Character> players, List<Character> enemies)
         {
@@ -34,7 +34,7 @@ namespace RPG_Turn_Based_Battle_System.Core
             InitializeBattle();
             DisplayBattleStatus();
 
-            while (!battleIsOver)
+            while (!BattleIsOver)
             {
                 if (turnOrderQueue.Count == 0)
                 {
@@ -42,7 +42,7 @@ namespace RPG_Turn_Based_Battle_System.Core
                     if (turnOrderQueue.Count == 0)
                     {
                         CheckBattleEndConditions();
-                        if (battleIsOver) break;
+                        if (BattleIsOver) break;
                         currentTurnNumber++;
                         Console.WriteLine($"\n=== Round {currentTurnNumber} ===");
                     }
@@ -71,7 +71,7 @@ namespace RPG_Turn_Based_Battle_System.Core
             }
 
             DisplayBattleEndResult();
-            return isVictory;
+            return IsVictory;
         }
 
         private void RebuildTurnOrder()
@@ -86,8 +86,8 @@ namespace RPG_Turn_Based_Battle_System.Core
         private void InitializeBattle()
         {
             currentTurnNumber = 1;
-            battleIsOver = false;
-            isVictory = false;
+            BattleIsOver = false;
+            IsVictory = false;
             RebuildTurnOrder();
 
             Console.WriteLine($"Round {currentTurnNumber} begins");
@@ -99,7 +99,7 @@ namespace RPG_Turn_Based_Battle_System.Core
             foreach (var c in allCombatants.OrderBy(c => c.IsPlayer).ThenBy(c => c.Name))
             {
                 string status = c.IsAlive ? $"HP: {c.Health}/{c.MaxHealth}" : "DEFEATED";
-                Console.WriteLine($"{c.Name} ({(c.IsPlayer ? "Player" : "Enemy")}): {status}");
+                Console.WriteLine($"{c.Name} ({(c.IsPlayer ? "Player" : "Enemy")}): {status}  MP : {c.Mana}/{c.MaxMana}");
             }
             Console.WriteLine("=========================");
         }
@@ -111,13 +111,13 @@ namespace RPG_Turn_Based_Battle_System.Core
 
             if (allEnemiesDefeated)
             {
-                battleIsOver = true;
-                isVictory = true;
+                BattleIsOver = true;
+                IsVictory = true;
             }
             else if (allPlayersDefeated)
             {
-                battleIsOver = true;
-                isVictory = false;
+                BattleIsOver = true;
+                IsVictory = false;
             }
         }
 
@@ -134,6 +134,7 @@ namespace RPG_Turn_Based_Battle_System.Core
             {
                 HandleEnemyTurn(actor);
             }
+            currentTurnNumber++;
         }
 
         private void HandlePlayerTurn(Character player)
@@ -158,7 +159,7 @@ namespace RPG_Turn_Based_Battle_System.Core
                         }
                     case "2":
                         {
-                            Console.WriteLine("NOT IMPLEMENTED");
+                            actionTaken = HandlePlayerAbility(player);
                             break;
                         }
                     case "3":
@@ -228,6 +229,90 @@ namespace RPG_Turn_Based_Battle_System.Core
             }
         }
 
+        private bool HandlePlayerAbility(Character player)
+        {
+            var livingEnemies = allCombatants.Where(c => !c.IsPlayer && c.IsAlive).ToList();
+            var livingAllies = allCombatants.Where(c => c.IsPlayer && c.IsAlive).ToList();
+
+            if (!player.Abilities.Any())
+            {
+                Console.WriteLine("No spells to cast");
+                return false;
+            }
+            for (int i = 0; i < player.Abilities.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {player.Abilities[i].Name} costs {player.Abilities[i].ManaCost}");
+            }
+            Console.WriteLine("Enter Ability number");
+            if (int.TryParse(Console.ReadLine(), out int abilityIndex) && (abilityIndex > 0 && abilityIndex <= player.Abilities.Count))
+            {
+                if (player.Abilities[abilityIndex - 1].CastOnAlly)
+                {
+                    for (int i = 0; i < livingAllies.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1} . {livingAllies[i].Name} (HP: {livingAllies[i].Health}/{livingAllies[i].MaxHealth})");
+                    }
+                    Console.WriteLine("Enter target number");
+                    if (int.TryParse(Console.ReadLine(), out int targetIndex) && (targetIndex > 0 && targetIndex <= livingAllies.Count))
+                    {
+                        if (player.Abilities[abilityIndex - 1].ManaCost > player.Mana)
+                        {
+                            Console.WriteLine("Not enough mana to cast");
+                            return false;
+                        }
+                        else
+                        {
+                            Character target = livingAllies[targetIndex - 1];
+                            player.Abilities[abilityIndex - 1].Use(player, target);
+                            Console.WriteLine($"{player.Name} casts {player.Abilities[abilityIndex - 1].Name} on {target.Name}");
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid target");
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!livingEnemies.Any())
+                    {
+                        Console.WriteLine("No enemies to attack");
+                        return false;
+                    }
+                    for (int i = 0; i < livingEnemies.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {livingEnemies[i].Name} (HP: {livingEnemies[i].Health}/{livingEnemies[i].MaxHealth}");
+                    }
+                    Console.WriteLine("Enter target number");
+                    if (int.TryParse(Console.ReadLine(), out int targetIndex) && targetIndex > 0 && targetIndex <= livingEnemies.Count)
+                    {
+                        if (player.Abilities[abilityIndex - 1].ManaCost > player.Mana)
+                        {
+                            Console.WriteLine("Not enough mana to cast");
+                            return false;
+                        }
+                        else
+                        {
+                            Character target = livingEnemies[targetIndex - 1];
+                            player.Abilities[abilityIndex - 1].Use(player, target);
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Target");
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid ability");
+                return false;
+            }
+        }
 
         private void RemoveDefeatedCombatants()
         {
@@ -237,7 +322,7 @@ namespace RPG_Turn_Based_Battle_System.Core
         private void DisplayBattleEndResult()
         {
             Console.Clear();
-            if (isVictory)
+            if (IsVictory)
             {
                 Console.WriteLine("=== VICTORY! ===");
                 Console.WriteLine("You have defeated all enemies!");

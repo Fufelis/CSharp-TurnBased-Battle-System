@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RPG_Turn_Based_Battle_System")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0b1c5f17d7c1d0404d5c46e08acc7bf97cc66cfa")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a499d76eff18500059652b9279432e961bb5588b")]
 [assembly: System.Reflection.AssemblyProductAttribute("RPG_Turn_Based_Battle_System")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RPG_Turn_Based_Battle_System")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

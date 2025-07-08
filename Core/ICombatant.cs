@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RPG_Turn_Based_Battle_System.Core
 {
-    public interface ICombatant
+    internal interface ICombatant
     {
 
         string Name { get; }
