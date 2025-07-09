@@ -19,7 +19,6 @@ namespace RPG_Turn_Based_Battle_System.Core
         int Speed { get; }
 
         void Attack(ICombatant target);
-        void Spell(ICombatant target);
         void TakeDamage(int amount);
     }
 }

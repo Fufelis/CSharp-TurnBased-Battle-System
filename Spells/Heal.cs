@@ -18,17 +18,11 @@ namespace RPG_Turn_Based_Battle_System.Spells
         public override void Use(Character caster, Character target)
         {
 
-            if (caster.Mana < ManaCost)
-            {
-                Console.WriteLine($"Not enough mana to cast {Name}");
-                return;
-            }
-            else { 
             int healAmount = 10+ caster.SpellPower ;
             target.Health += healAmount;
             caster.Mana -= ManaCost;
             Console.WriteLine($"{caster.Name} Heals {target.Name} for {healAmount} HP!");            
-            }
+
 
 
         }

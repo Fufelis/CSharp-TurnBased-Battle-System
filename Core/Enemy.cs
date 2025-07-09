@@ -15,10 +15,6 @@ namespace RPG_Turn_Based_Battle_System.Core
         }
 
 
-        public override void Spell(ICombatant target)
-        {
-            Console.WriteLine("NO IMPLEMENTATION");
-        }
 
     }
 }

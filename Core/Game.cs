@@ -86,7 +86,8 @@ namespace RPG_Turn_Based_Battle_System.Core
         public void HandleBattle()
         {
             Player player = new Player("Fufelis",100,25,10,100,15,20,true);
-            Enemy enemy1 = new Enemy("Gobiln",50,5,10,50,10,15,false);
+            Player player2 = new Player("Karote",50,10,10,50,10,10,true);
+            Enemy enemy1 = new Enemy("Gobiln",50,5,10,50,0,15,false);
             Fireball fireball = new Fireball();
             Heal heal = new Heal();
             player.LearnAbility(fireball);
@@ -95,6 +96,7 @@ namespace RPG_Turn_Based_Battle_System.Core
            // Enemy enemy2 = new Enemy("Big Gobiln", 55, 55, 10, 10, 5, 9, false);
             List<Character> players = new List<Character>();
             players.Add(player);
+            players.Add(player2);
             List<Character> enemies = new List<Character>();
             enemies.Add(enemy1);
             //enemies.Add(enemy2);

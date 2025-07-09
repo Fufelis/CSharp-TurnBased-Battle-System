@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using RPG_Turn_Based_Battle_System.Spells;
 
 namespace RPG_Turn_Based_Battle_System.Core
 {
@@ -11,6 +12,7 @@ namespace RPG_Turn_Based_Battle_System.Core
     {
         private List<Character> allCombatants;
         private Queue<Character> turnOrderQueue;
+        private Random _rand = new Random();
 
         private int currentTurnNumber;
 
@@ -134,7 +136,6 @@ namespace RPG_Turn_Based_Battle_System.Core
             {
                 HandleEnemyTurn(actor);
             }
-            currentTurnNumber++;
         }
 
         private void HandlePlayerTurn(Character player)
@@ -146,6 +147,7 @@ namespace RPG_Turn_Based_Battle_System.Core
                 Console.WriteLine("1. Attack");
                 Console.WriteLine("2. Use Ability");
                 Console.WriteLine("3. Use Item");
+                Console.WriteLine("4. SKIP (testing purpose)");
 
                 Console.Write("Enter choice: ");
                 string input = Console.ReadLine();
@@ -167,6 +169,11 @@ namespace RPG_Turn_Based_Battle_System.Core
                             Console.WriteLine("NOT IMPLEMENTED");
                             break;
                         }
+                    case "4":
+                        {
+                            actionTaken = true;
+                            break;
+                        }
                     default:
                         {
                             Console.WriteLine("Wrong choice ");
@@ -180,20 +187,32 @@ namespace RPG_Turn_Based_Battle_System.Core
         {
             Console.WriteLine($"{enemy.Name} is thinking");
             Thread.Sleep(1000);
-
             var livingPlayers = allCombatants.Where(c => c.IsPlayer && c.IsAlive).ToList();
+
             if (livingPlayers.Any())
             {
-                Random rand = new Random();
-                Character target = livingPlayers[rand.Next(livingPlayers.Count)];
-                int damage = enemy.CalculateAttackDamage(target);
-                target.TakeDamage(damage);
-                Console.WriteLine($"{enemy.Name} attacked {target.Name} for {damage} damage!");
+               livingPlayers= livingPlayers.OrderByDescending(c=> c.Health).ToList();
+                Character target = livingPlayers.Last();
+                if (enemy.Abilities.Any()&& _rand.Next(100)<=30) { 
+                    var randomAbility = enemy.Abilities[_rand.Next(enemy.Abilities.Count())];
+                    Console.WriteLine($"{enemy.Name} casts {randomAbility.Name} on {target.Name}");
+                    TryUseAbility(enemy, randomAbility,target);
+                    enemy.Mana=enemy.MaxMana;
+                }
+                else
+                {
+                    int damage = enemy.CalculateAttackDamage(target);
+                    target.TakeDamage(damage);
+
+                    Console.WriteLine($"{enemy.Name} attacked {target.Name} for {damage} damage!");
+
+                }
             }
             else
             {
                 Console.WriteLine($"{enemy.Name} has no targets to attack");
             }
+
         }
 
         private void ApplyEndOfTurnEffects(Character actor)
@@ -203,37 +222,25 @@ namespace RPG_Turn_Based_Battle_System.Core
 
         private bool HandlePlayerAttack(Character player)
         {
-            var livingEnemies = allCombatants.Where(c => !c.IsPlayer && c.IsAlive).ToList();
-            if (!livingEnemies.Any())
+
+            Character target = SelectTarget(false);
+
+            if (target == null)
             {
-                Console.WriteLine("No enemies to attack");
+                Console.WriteLine("Invalid target");
                 return false;
             }
-            for (int i = 0; i < livingEnemies.Count; i++)
+            else
             {
-                Console.WriteLine($"{i + 1}. {livingEnemies[i].Name} (HP: {livingEnemies[i].Health}/{livingEnemies[i].MaxHealth}");
-            }
-            Console.WriteLine("Enter target number");
-            if (int.TryParse(Console.ReadLine(), out int targetIndex) && targetIndex > 0 && targetIndex <= livingEnemies.Count)
-            {
-                Character target = livingEnemies[targetIndex - 1];
                 int damage = player.CalculateAttackDamage(target);
                 target.TakeDamage(damage);
                 Console.WriteLine($"{player.Name} attacked {target.Name} for {damage}");
                 return true;
             }
-            else
-            {
-                Console.WriteLine("Invalid Target");
-                return false;
-            }
         }
 
         private bool HandlePlayerAbility(Character player)
         {
-            var livingEnemies = allCombatants.Where(c => !c.IsPlayer && c.IsAlive).ToList();
-            var livingAllies = allCombatants.Where(c => c.IsPlayer && c.IsAlive).ToList();
-
             if (!player.Abilities.Any())
             {
                 Console.WriteLine("No spells to cast");
@@ -246,65 +253,16 @@ namespace RPG_Turn_Based_Battle_System.Core
             Console.WriteLine("Enter Ability number");
             if (int.TryParse(Console.ReadLine(), out int abilityIndex) && (abilityIndex > 0 && abilityIndex <= player.Abilities.Count))
             {
-                if (player.Abilities[abilityIndex - 1].CastOnAlly)
+                Character target = SelectTarget(player.Abilities[abilityIndex - 1].CastOnAlly);
+                if (target == null)
                 {
-                    for (int i = 0; i < livingAllies.Count; i++)
-                    {
-                        Console.WriteLine($"{i + 1} . {livingAllies[i].Name} (HP: {livingAllies[i].Health}/{livingAllies[i].MaxHealth})");
-                    }
-                    Console.WriteLine("Enter target number");
-                    if (int.TryParse(Console.ReadLine(), out int targetIndex) && (targetIndex > 0 && targetIndex <= livingAllies.Count))
-                    {
-                        if (player.Abilities[abilityIndex - 1].ManaCost > player.Mana)
-                        {
-                            Console.WriteLine("Not enough mana to cast");
-                            return false;
-                        }
-                        else
-                        {
-                            Character target = livingAllies[targetIndex - 1];
-                            player.Abilities[abilityIndex - 1].Use(player, target);
-                            Console.WriteLine($"{player.Name} casts {player.Abilities[abilityIndex - 1].Name} on {target.Name}");
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid target");
-                        return false;
-                    }
+                    Console.WriteLine("invalid target");
+                    return false;
                 }
                 else
                 {
-                    if (!livingEnemies.Any())
-                    {
-                        Console.WriteLine("No enemies to attack");
-                        return false;
-                    }
-                    for (int i = 0; i < livingEnemies.Count; i++)
-                    {
-                        Console.WriteLine($"{i + 1}. {livingEnemies[i].Name} (HP: {livingEnemies[i].Health}/{livingEnemies[i].MaxHealth}");
-                    }
-                    Console.WriteLine("Enter target number");
-                    if (int.TryParse(Console.ReadLine(), out int targetIndex) && targetIndex > 0 && targetIndex <= livingEnemies.Count)
-                    {
-                        if (player.Abilities[abilityIndex - 1].ManaCost > player.Mana)
-                        {
-                            Console.WriteLine("Not enough mana to cast");
-                            return false;
-                        }
-                        else
-                        {
-                            Character target = livingEnemies[targetIndex - 1];
-                            player.Abilities[abilityIndex - 1].Use(player, target);
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid Target");
-                        return false;
-                    }
+                    Console.WriteLine($"{player.Name} casts {player.Abilities[abilityIndex - 1].Name} on {target.Name}");
+                    return TryUseAbility(player, player.Abilities[abilityIndex - 1], target);
                 }
             }
             else
@@ -317,6 +275,66 @@ namespace RPG_Turn_Based_Battle_System.Core
         private void RemoveDefeatedCombatants()
         {
             allCombatants.RemoveAll(c => !c.IsAlive);
+        }
+
+        private bool TryUseAbility(Character caster, Ability ability, Character target)
+        {
+            if (caster.Mana < ability.ManaCost)
+            {
+                Console.WriteLine($"{caster.Name} Doesnt have enough mana for {ability.Name}");
+                return false;
+            }
+
+            ability.Use(caster, target);
+            return true;
+        }
+
+        private Character SelectTarget(bool isAlly)
+        {
+            var livingEnemies = allCombatants.Where(c => !c.IsPlayer && c.IsAlive).ToList();
+            var livingAllies = allCombatants.Where(c => c.IsPlayer && c.IsAlive).ToList();
+
+            if (isAlly)
+            {
+                for (int i = 0; i < livingAllies.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1} . {livingAllies[i].Name} (HP: {livingAllies[i].Health}/{livingAllies[i].MaxHealth})");
+                }
+                Console.WriteLine("Enter target number");
+                if (int.TryParse(Console.ReadLine(), out int targetIndex) && (targetIndex > 0 && targetIndex <= livingAllies.Count))
+                {
+                    Character target = livingAllies[targetIndex - 1];
+                    return target;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            { 
+                if (!livingEnemies.Any())
+                {
+                    Console.WriteLine("No enemies to attack");
+                    return null;
+                }
+                for (int i = 0; i < livingEnemies.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {livingEnemies[i].Name} (HP: {livingEnemies[i].Health}/{livingEnemies[i].MaxHealth}");
+                }
+                Console.WriteLine("Enter target number");
+
+                if (int.TryParse(Console.ReadLine(), out int targetIndex) && targetIndex > 0 && targetIndex <= livingEnemies.Count)
+                {
+                    Character target = livingEnemies[targetIndex - 1];
+                    return target;
+                }
+                else
+                {
+                    
+                    return null;
+                }
+            }
         }
 
         private void DisplayBattleEndResult()

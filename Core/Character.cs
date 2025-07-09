@@ -103,7 +103,6 @@ namespace RPG_Turn_Based_Battle_System.Core
             target.TakeDamage(AttackPower);
         }
 
-        public abstract void Spell(ICombatant target);
 
         public void TakeDamage(int amount)
         {
