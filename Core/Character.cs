@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RPG_Turn_Based_Battle_System.Items.Consumables;
 using RPG_Turn_Based_Battle_System.Spells;
 
 namespace RPG_Turn_Based_Battle_System.Core
@@ -12,8 +8,14 @@ namespace RPG_Turn_Based_Battle_System.Core
         private int health;
         private int mana;
         private List<Ability> abilities;
+        private List<Consumable> consumableInventory;
+        private const int CONSUMABLE_INVENTORY_SIZE = 5;
 
-        public List<Ability> Abilities { get { return abilities; } }
+        public List<Ability> Abilities
+        { get { return abilities; } }
+
+        public List<Consumable> ConsumableInventory
+        { get { return consumableInventory; } }
         public bool IsPlayer { get; set; }
         public string Name { get; set; }
 
@@ -42,6 +44,7 @@ namespace RPG_Turn_Based_Battle_System.Core
         public int AttackPower { get; set; }
         public int SpellPower { get; set; }
         public int MaxMana { get; set; }
+
         public int Mana
         {
             get
@@ -66,7 +69,6 @@ namespace RPG_Turn_Based_Battle_System.Core
             }
         }
 
-
         public int Defense { get; set; }
         public int Speed { get; set; }
 
@@ -87,6 +89,7 @@ namespace RPG_Turn_Based_Battle_System.Core
             Speed = speed;
             IsPlayer = isPlayer;
             abilities = new List<Ability>();
+            consumableInventory = new List<Consumable>();
         }
 
         public Character(string name, int health, int maxHealth, int attackPower, int defense)
@@ -102,7 +105,6 @@ namespace RPG_Turn_Based_Battle_System.Core
         {
             target.TakeDamage(AttackPower);
         }
-
 
         public void TakeDamage(int amount)
         {
@@ -122,17 +124,62 @@ namespace RPG_Turn_Based_Battle_System.Core
         public int CalculateAttackDamage(Character target)
         {
             int damage = AttackPower - (target.Defense / 2);
-            
-            if(damage <= 0) { damage = 1; }
+
+            if (damage <= 0) { damage = 1; }
             return damage;
-            
-            // return AttackPower - (target.Defense / 2);
+
             //for future
         }
+
         public void LearnAbility(Ability ability)
         {
             abilities.Add(ability);
         }
+
+        public void AddConsumable(Consumable consumable)
+        {
+            if (consumableInventory.Count >= CONSUMABLE_INVENTORY_SIZE)
+            {
+                Console.WriteLine("inventory full cannot pick up item");
+                //future discard option
+                return;
+            }
+            else
+            {
+                consumableInventory.Add(consumable);
+                Console.WriteLine($"{Name} picked up {consumable.Name}");
+            }
+        }
+
+        public void UseConsumable(Consumable consumable)
+        {
+            switch (consumable.Type)
+            {
+                case ConsumableType.Health:
+                    {
+                        Health += consumable.Value;
+                        Console.WriteLine($"{Name} used {consumable.Name} and healed for {consumable.Value} HP");
+                        Console.WriteLine($"{Name} now has {Health} HP");
+                        ConsumableInventory.Remove(consumable);
+                        break;
+                    }
+                case ConsumableType.Mana:
+                    {
+                        Mana += consumable.Value;
+                        Console.WriteLine($"{Name} used {consumable.Name} and restored  {consumable.Value} MP");
+                        Console.WriteLine($"{Name} now has {Mana} MP");
+                        ConsumableInventory.Remove(consumable);
+                        break;
+                    }
+                case ConsumableType.Buff:
+                    {
+                        Console.WriteLine("BUFF NOT IMPLEMENTED YET");
+                        ConsumableInventory.Remove(consumable);
+                        break;
+                    }
+            }
+        }
+
         public void DisplayInfo()
         {
             Console.WriteLine($"---{Name}`s Info---");

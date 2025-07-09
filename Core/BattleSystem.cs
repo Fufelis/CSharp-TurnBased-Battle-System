@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RPG_Turn_Based_Battle_System.Items.Consumables;
 using RPG_Turn_Based_Battle_System.Spells;
 
 namespace RPG_Turn_Based_Battle_System.Core
@@ -64,6 +59,8 @@ namespace RPG_Turn_Based_Battle_System.Core
                 PerformTurn(currentActor);
 
                 ApplyEndOfTurnEffects(currentActor);
+                Console.WriteLine("any key");
+                Console.ReadKey();
                 RemoveDefeatedCombatants();
 
                 DisplayBattleStatus();
@@ -143,6 +140,8 @@ namespace RPG_Turn_Based_Battle_System.Core
             bool actionTaken = false;
             while (!actionTaken)
             {
+                Console.Clear();
+                DisplayBattleStatus();
                 Console.WriteLine($"\nWhat will {player.Name} do?");
                 Console.WriteLine("1. Attack");
                 Console.WriteLine("2. Use Ability");
@@ -157,16 +156,19 @@ namespace RPG_Turn_Based_Battle_System.Core
                     case "1":
                         {
                             actionTaken = HandlePlayerAttack(player);
+                         //   Console.ReadKey(); //temp debug
                             break;
                         }
                     case "2":
                         {
                             actionTaken = HandlePlayerAbility(player);
+                           // Console.ReadKey();//temp debug
                             break;
                         }
                     case "3":
                         {
-                            Console.WriteLine("NOT IMPLEMENTED");
+                            actionTaken= HandlePlayerUseItem(player);
+                           // Console.ReadKey();//temp debug
                             break;
                         }
                     case "4":
@@ -191,13 +193,14 @@ namespace RPG_Turn_Based_Battle_System.Core
 
             if (livingPlayers.Any())
             {
-               livingPlayers= livingPlayers.OrderByDescending(c=> c.Health).ToList();
+                livingPlayers = livingPlayers.OrderByDescending(c => c.Health).ToList();
                 Character target = livingPlayers.Last();
-                if (enemy.Abilities.Any()&& _rand.Next(100)<=30) { 
+                if (enemy.Abilities.Any() && _rand.Next(100) <= 30)
+                {
                     var randomAbility = enemy.Abilities[_rand.Next(enemy.Abilities.Count())];
                     Console.WriteLine($"{enemy.Name} casts {randomAbility.Name} on {target.Name}");
-                    TryUseAbility(enemy, randomAbility,target);
-                    enemy.Mana=enemy.MaxMana;
+                    TryUseAbility(enemy, randomAbility, target);
+                    enemy.Mana = enemy.MaxMana;
                 }
                 else
                 {
@@ -205,14 +208,12 @@ namespace RPG_Turn_Based_Battle_System.Core
                     target.TakeDamage(damage);
 
                     Console.WriteLine($"{enemy.Name} attacked {target.Name} for {damage} damage!");
-
                 }
             }
             else
             {
                 Console.WriteLine($"{enemy.Name} has no targets to attack");
             }
-
         }
 
         private void ApplyEndOfTurnEffects(Character actor)
@@ -222,7 +223,6 @@ namespace RPG_Turn_Based_Battle_System.Core
 
         private bool HandlePlayerAttack(Character player)
         {
-
             Character target = SelectTarget(false);
 
             if (target == null)
@@ -312,7 +312,7 @@ namespace RPG_Turn_Based_Battle_System.Core
                 }
             }
             else
-            { 
+            {
                 if (!livingEnemies.Any())
                 {
                     Console.WriteLine("No enemies to attack");
@@ -331,12 +331,36 @@ namespace RPG_Turn_Based_Battle_System.Core
                 }
                 else
                 {
-                    
                     return null;
                 }
             }
         }
 
+        private bool HandlePlayerUseItem(Character player)
+        {
+            List<Consumable> playerConsumableInventory = player.ConsumableInventory;
+
+            if (!playerConsumableInventory.Any())
+            {
+                Console.WriteLine($"{player.Name} has no consumables");
+                return false;
+            }
+
+            for (int i = 0; i < playerConsumableInventory.Count; i++) {
+                Console.WriteLine($"{i + 1}. {playerConsumableInventory[i].Name} ");
+            }
+            Console.WriteLine("Enter Item number");
+            if (int.TryParse(Console.ReadLine(), out int targetIndex) && targetIndex > 0 && targetIndex <= playerConsumableInventory.Count)
+            {
+                player.UseConsumable(playerConsumableInventory[targetIndex - 1]);
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("wrong index");
+                return false;
+            }
+        }
         private void DisplayBattleEndResult()
         {
             Console.Clear();

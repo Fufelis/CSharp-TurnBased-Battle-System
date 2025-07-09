@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RPG_Turn_Based_Battle_System.Items.Consumables;
 using RPG_Turn_Based_Battle_System.Spells;
 
 namespace RPG_Turn_Based_Battle_System.Core
@@ -70,12 +66,12 @@ namespace RPG_Turn_Based_Battle_System.Core
                         currentGameState = GameState.Battle;
                         break;
                     }
-                    case "2":
+                case "2":
                     {
                         Console.WriteLine("NOT IMPLEMENTED");
                         break;
                     }
-                    case "3":
+                case "3":
                     {
                         isRunning = false;
                         break;
@@ -85,18 +81,35 @@ namespace RPG_Turn_Based_Battle_System.Core
 
         public void HandleBattle()
         {
-            Player player = new Player("Fufelis",100,25,10,100,15,20,true);
-            Player player2 = new Player("Karote",50,10,10,50,10,10,true);
-            Enemy enemy1 = new Enemy("Gobiln",50,5,10,50,0,15,false);
+            Player player = new Player("Fufelis", 100, 25, 10, 100, 15, 20, true);
+            Player player2 = new Player("Karote", 50, 10, 10, 50, 10, 10, true);
+
+            Enemy enemy1 = new Enemy("Gobiln", 50, 5, 10, 50, 0, 15, false);
+
+            Potion potion1 = new Potion("Health Potion", 25, ConsumableType.Health);
+            Potion potion2 = new Potion("Mana Potion",25,ConsumableType.Mana);
+            Potion potion3 = new Potion("Buff Potion",10, ConsumableType.Buff);
+
             Fireball fireball = new Fireball();
             Heal heal = new Heal();
+
             player.LearnAbility(fireball);
             player.LearnAbility(heal);
+
+
+            player.AddConsumable(potion1);
+            player.AddConsumable(potion2);
+            player.AddConsumable(potion3);
+            player.AddConsumable(potion3);
+            player.AddConsumable(potion3);
+            player.AddConsumable(potion3);
+            player.AddConsumable(potion3);
+
             enemy1.LearnAbility(fireball);
-           // Enemy enemy2 = new Enemy("Big Gobiln", 55, 55, 10, 10, 5, 9, false);
+            // Enemy enemy2 = new Enemy("Big Gobiln", 55, 55, 10, 10, 5, 9, false);
             List<Character> players = new List<Character>();
             players.Add(player);
-            players.Add(player2);
+            // players.Add(player2);
             List<Character> enemies = new List<Character>();
             enemies.Add(enemy1);
             //enemies.Add(enemy2);
@@ -112,10 +125,6 @@ namespace RPG_Turn_Based_Battle_System.Core
             {
                 currentGameState = GameState.GameOver;
             }
-            
-
-
-
         }
 
         public void HandleVictoryScreen()

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RPG_Turn_Based_Battle_System.Core;
+﻿using RPG_Turn_Based_Battle_System.Core;
 
 namespace RPG_Turn_Based_Battle_System.Spells
 {
     internal class Heal : Ability
     {
-        public Heal() {
+        public Heal()
+        {
             Name = "Heal";
             ManaCost = 25;
             CastOnAlly = true;
@@ -17,14 +13,10 @@ namespace RPG_Turn_Based_Battle_System.Spells
 
         public override void Use(Character caster, Character target)
         {
-
-            int healAmount = 10+ caster.SpellPower ;
+            int healAmount = 10 + caster.SpellPower;
             target.Health += healAmount;
             caster.Mana -= ManaCost;
-            Console.WriteLine($"{caster.Name} Heals {target.Name} for {healAmount} HP!");            
-
-
-
+            Console.WriteLine($"{caster.Name} Heals {target.Name} for {healAmount} HP!");
         }
     }
 }
