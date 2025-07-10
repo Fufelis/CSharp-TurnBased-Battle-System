@@ -7,9 +7,8 @@
         Buff,
     }
 
-    internal abstract class Consumable
+    internal abstract class Consumable : Item
     {
-        public string Name { get; set; }
         public int Value { get; set; }
         public ConsumableType Type { get; set; }
     }

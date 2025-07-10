@@ -1,4 +1,5 @@
 ﻿using RPG_Turn_Based_Battle_System.Items.Consumables;
+using RPG_Turn_Based_Battle_System.Items.Equipment;
 using RPG_Turn_Based_Battle_System.Spells;
 
 namespace RPG_Turn_Based_Battle_System.Core
@@ -8,7 +9,8 @@ namespace RPG_Turn_Based_Battle_System.Core
         MainMenu,
         Battle,
         VictoryScreen,
-        GameOver
+        GameOver,
+        CharacterInfo,
     }
 
     internal class Game
@@ -45,6 +47,11 @@ namespace RPG_Turn_Based_Battle_System.Core
                             HandleGameOver();
                             break;
                         }
+                    case GameState.CharacterInfo:
+                        {
+                            HandleCharacterInfo();
+                            break;
+                        }
                 }
             }
         }
@@ -55,7 +62,8 @@ namespace RPG_Turn_Based_Battle_System.Core
             Console.WriteLine("--- Console RPG ---");
             Console.WriteLine("1. Start New Game");
             Console.WriteLine("2. Load Game");
-            Console.WriteLine("3. Exit");
+            Console.WriteLine("3. Character info(for testing)");
+            Console.WriteLine("4. Exit");
             Console.Write("Choose an option: ");
             string input = Console.ReadLine();
 
@@ -73,6 +81,11 @@ namespace RPG_Turn_Based_Battle_System.Core
                     }
                 case "3":
                     {
+                        currentGameState = GameState.CharacterInfo;
+                        break;
+                    }
+                case "4":
+                    {
                         isRunning = false;
                         break;
                     }
@@ -87,8 +100,8 @@ namespace RPG_Turn_Based_Battle_System.Core
             Enemy enemy1 = new Enemy("Gobiln", 50, 5, 10, 50, 0, 15, false);
 
             Potion potion1 = new Potion("Health Potion", 25, ConsumableType.Health);
-            Potion potion2 = new Potion("Mana Potion",25,ConsumableType.Mana);
-            Potion potion3 = new Potion("Buff Potion",10, ConsumableType.Buff);
+            Potion potion2 = new Potion("Mana Potion", 25, ConsumableType.Mana);
+            Potion potion3 = new Potion("Buff Potion", 10, ConsumableType.Buff);
 
             Fireball fireball = new Fireball();
             Heal heal = new Heal();
@@ -96,13 +109,8 @@ namespace RPG_Turn_Based_Battle_System.Core
             player.LearnAbility(fireball);
             player.LearnAbility(heal);
 
-
             player.AddConsumable(potion1);
             player.AddConsumable(potion2);
-            player.AddConsumable(potion3);
-            player.AddConsumable(potion3);
-            player.AddConsumable(potion3);
-            player.AddConsumable(potion3);
             player.AddConsumable(potion3);
 
             enemy1.LearnAbility(fireball);
@@ -125,6 +133,36 @@ namespace RPG_Turn_Based_Battle_System.Core
             {
                 currentGameState = GameState.GameOver;
             }
+        }
+
+        public void HandleCharacterInfo()
+        {
+            Player player = new Player("Fufelis", 100, 25, 10, 100, 15, 20, true);
+            Weapon sword = new Weapon("Iron Sword",25,WeaponType.Sword);
+            Weapon wand = new Weapon("Diamond Wand", 50, WeaponType.Wand);
+            Armor plateskirt = new Armor("Iron plateskirt", 10,ArmorType.Medium, EquipmentSlot.Legs);
+            Armor chest = new Armor("Iron Full platebody",15,ArmorType.Medium,EquipmentSlot.Chest);
+
+
+            player.EquipmentInventory.Add(sword);
+            player.EquipmentInventory.Add(wand);
+            player.EquipmentInventory.Add(chest);
+            player.EquipmentInventory.Add(plateskirt);
+
+            player.DisplayInfo();
+            player.EquipItem(wand);
+            player.EquipItem(chest);
+            player.EquipItem(plateskirt);
+            player.DisplayInfo();
+
+            player.DisplayEquippedGear();
+
+            player.UnequipItem(wand);
+            player.DisplayInfo();
+            player.DisplayEquippedGear();
+
+            Console.ReadKey();
+            currentGameState = GameState.MainMenu;
         }
 
         public void HandleVictoryScreen()
